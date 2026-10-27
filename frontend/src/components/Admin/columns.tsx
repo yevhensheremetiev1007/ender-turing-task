@@ -43,8 +43,8 @@ export const columns: ColumnDef<DataTableFeatures, UserTableData>[] = [
     accessorKey: "role",
     header: "Role",
     cell: ({ row }) => (
-      <Badge variant={row.original.role === "admin" ? "default" : "secondary"}>
-        {row.original.role === "admin" ? "Superuser" : "User"}
+      <Badge variant={row.original.role === "member" ? "secondary" : "default"}>
+        {row.original.role.charAt(0).toUpperCase() + row.original.role.slice(1)}
       </Badge>
     ),
   },

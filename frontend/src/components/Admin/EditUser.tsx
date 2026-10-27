@@ -28,6 +28,14 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { isRole } from "@/lib/permissions"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -41,7 +49,7 @@ const formSchema = z
       .optional()
       .or(z.literal("")),
     confirm_password: z.string().optional(),
-    is_superuser: z.boolean().optional(),
+    role: z.enum(["admin", "manager", "member"]),
     is_active: z.boolean().optional(),
   })
   .refine((data) => !data.password || data.password === data.confirm_password, {
@@ -68,7 +76,7 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
     defaultValues: {
       email: user.email,
       full_name: user.full_name ?? undefined,
-      is_superuser: user.role === "admin",
+      role: isRole(user.role) ? user.role : "member",
       is_active: user.is_active,
     },
   })
@@ -88,15 +96,9 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
   })
 
   const onSubmit = (data: FormData) => {
-    const { confirm_password: _, is_superuser, password, ...rest } = data
-    const role = is_superuser
-      ? "admin"
-      : user.role !== "admin"
-        ? user.role
-        : "member"
+    const { confirm_password: _, password, ...rest } = data
     mutation.mutate({
       ...rest,
-      role,
       ...(password ? { password } : {}),
     })
   }
@@ -193,16 +195,23 @@ const EditUser = ({ user, onSuccess }: EditUserProps) => {
 
               <FormField
                 control={form.control}
-                name="is_superuser"
+                name="role"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Is superuser?</FormLabel>
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="manager">Manager</SelectItem>
+                        <SelectItem value="member">Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

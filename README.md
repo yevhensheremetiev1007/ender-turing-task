@@ -55,6 +55,74 @@
 
 ![API docs](img/docs.png)
 
+## Role-based access
+
+Each user has one role: `admin`, `manager`, or `member`. The API stores that role on the user and checks it through a single permission map in `backend/app/core/authorization.py`. A route asks for a permission, for example `users:create`, and FastAPI dependency `require_permission` allows the call only when the caller's role includes it. A denied call returns HTTP 403 and is written to the log.
+
+`GET /api/v1/users/me` returns the caller's `role` and the `permissions` list for that role. The React app does not keep a second copy of the matrix. The sidebar and the route guards call `hasPermission` with that list, so a new role is added in the backend map and shows up in the UI after the next login response.
+
+Signing up always creates a `member`. Only an admin can assign a role, and only through the create-user and update-user endpoints. Updating your own profile cannot change your role.
+
+```mermaid
+flowchart LR
+  request[Request] --> jwt[get_current_user]
+  jwt --> policy[require_permission]
+  policy -->|allowed| route[Route]
+  policy -->|403| denied[Access denied log]
+  me["GET /users/me"] --> ui[Sidebar and route guards]
+  ui -->|missing permission| forbidden[Forbidden page]
+```
+
+| Action | admin | manager | member |
+| --- | --- | --- | --- |
+| List users | yes | yes | no |
+| Create a user | yes | no | no |
+| View metrics | yes | yes | no |
+| Update or delete any user, including role | yes | no | no |
+| View and update own profile, items, and dashboard | yes | yes | yes |
+| Delete own account | no | yes | yes |
+
+A manager who opens `/admin` sees the user table and cannot create, edit, or delete accounts. A member who opens `/admin` or `/metrics` directly sees an Access Denied page.
+
+### Run locally
+
+Copy the example env file, start Postgres, apply migrations, then start the API and the Vite app. The migration `c4a8e1b27d90` replaces `is_superuser` with `role`. `scripts/prestart.sh` also creates the three seed users when they are missing.
+
+```console
+cp .env.example .env
+cp frontend/.env.example frontend/.env
+docker compose up -d db mailpit
+cd backend
+uv sync
+uv run bash scripts/prestart.sh
+uv run fastapi dev
+```
+
+In another terminal, from `frontend/`:
+
+```console
+bun install
+bun run dev
+```
+
+The UI is at `http://localhost:5173`. The API docs are at `http://localhost:8000/docs`.
+
+Seed accounts come from `.env.example`:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| admin | admin@example.com | changethis |
+| manager | manager@example.com | managerpass |
+| member | member@example.com | memberpass |
+
+Backend tests, from `backend/`:
+
+```console
+uv run pytest
+```
+
+More detail on Docker Compose and Alembic is in [backend/README.md](./backend/README.md) and [development.md](./development.md).
+
 ## How to Use It
 
 Click the **Use this template** button at the top of this page to create a new repository.
