@@ -19,7 +19,8 @@ def test_get_users_superuser_me(
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user["is_superuser"]
+    assert current_user["role"] == "admin"
+    assert "users:create" in current_user["permissions"]
     assert current_user["email"] == settings.FIRST_SUPERUSER
 
 
@@ -30,7 +31,8 @@ def test_get_users_normal_user_me(
     current_user = r.json()
     assert current_user
     assert current_user["is_active"] is True
-    assert current_user["is_superuser"] is False
+    assert current_user["role"] == "member"
+    assert current_user["permissions"] == []
     assert current_user["email"] == settings.EMAIL_TEST_USER
 
 
@@ -126,7 +128,7 @@ def test_get_existing_user_permissions_error(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 403
-    assert r.json() == {"detail": "The user doesn't have enough privileges"}
+    assert r.json() == {"detail": "Access denied"}
 
 
 def test_get_non_existing_user_permissions_error(
@@ -140,7 +142,7 @@ def test_get_non_existing_user_permissions_error(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 403
-    assert r.json() == {"detail": "The user doesn't have enough privileges"}
+    assert r.json() == {"detail": "Access denied"}
 
 
 def test_create_user_existing_username(
@@ -329,6 +331,7 @@ def test_register_user(client: TestClient, db: Session) -> None:
     created_user = r.json()
     assert created_user["email"] == username
     assert created_user["full_name"] == full_name
+    assert created_user["role"] == "member"
 
     user_query = select(User).where(User.email == username)
     user_db = db.exec(user_query).first()
@@ -457,7 +460,7 @@ def test_delete_user_me_as_superuser(
     )
     assert r.status_code == 403
     response = r.json()
-    assert response["detail"] == "Super users are not allowed to delete themselves"
+    assert response["detail"] == "Admins are not allowed to delete themselves"
 
 
 def test_delete_user_super_user(
@@ -502,7 +505,7 @@ def test_delete_user_current_super_user_error(
         headers=superuser_token_headers,
     )
     assert r.status_code == 403
-    assert r.json()["detail"] == "Super users are not allowed to delete themselves"
+    assert r.json()["detail"] == "Admins are not allowed to delete themselves"
 
 
 def test_delete_user_without_privileges(
@@ -518,4 +521,4 @@ def test_delete_user_without_privileges(
         headers=normal_user_token_headers,
     )
     assert r.status_code == 403
-    assert r.json()["detail"] == "The user doesn't have enough privileges"
+    assert r.json()["detail"] == "Access denied"

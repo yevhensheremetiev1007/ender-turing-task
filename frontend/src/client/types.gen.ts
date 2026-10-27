@@ -199,9 +199,9 @@ export type UserCreate = {
      */
     is_active?: boolean;
     /**
-     * Is Superuser
+     * Role
      */
-    is_superuser?: boolean;
+    role?: string;
     /**
      * Full Name
      */
@@ -225,9 +225,9 @@ export type UserPublic = {
      */
     is_active?: boolean;
     /**
-     * Is Superuser
+     * Role
      */
-    is_superuser?: boolean;
+    role: string;
     /**
      * Full Name
      */
@@ -240,6 +240,16 @@ export type UserPublic = {
      * Created At
      */
     created_at?: string | null;
+};
+
+/**
+ * UserMe
+ */
+export type UserMe = UserPublic & {
+    /**
+     * Permissions
+     */
+    permissions: Array<string>;
 };
 
 /**
@@ -273,9 +283,9 @@ export type UserUpdate = {
      */
     is_active?: boolean | null;
     /**
-     * Is Superuser
+     * Role
      */
-    is_superuser?: boolean | null;
+    role?: string | null;
     /**
      * Full Name
      */
@@ -554,7 +564,7 @@ export type usersReadUserMeResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersReadUserMeResponse = usersReadUserMeResponses[keyof usersReadUserMeResponses];
@@ -579,7 +589,7 @@ export type usersUpdateUserMeResponses = {
     /**
      * Successful Response
      */
-    200: UserPublic;
+    200: UserMe;
 };
 
 export type usersUpdateUserMeResponse = usersUpdateUserMeResponses[keyof usersUpdateUserMeResponses];

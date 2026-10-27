@@ -89,7 +89,7 @@ The `compose.override.yml` file adds local development settings, such as mountin
 
 The `compose.deploy.yml` file contains the deployment-specific settings, including HTTPS and automatic certificate handling. It is explicitly combined with `compose.yml` when deploying the application.
 
-The backend reads local settings from the `.env` file. Docker Compose also uses it for variable interpolation and passes the settings each container needs.
+The backend reads local settings from the `.env` file. Docker Compose also uses it for variable interpolation and passes the settings each container needs. Copy `.env.example` to `.env` before the first run. `.env` is gitignored.
 
 After changing variables, make sure you restart the stack:
 
@@ -99,7 +99,7 @@ docker compose watch
 
 ## The `.env` File
 
-The tracked `.env` file contains local development defaults, passwords, and other configuration. Its hostnames use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database and SMTP server with their Compose service names.
+`.env.example` contains local development defaults. Copy it to `.env` and change any secrets there. Hostnames in that file use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database and SMTP server with their Compose service names.
 
 Do not store deployment secrets in `.env`. Configure them as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
 

@@ -57,6 +57,10 @@ services:
       SECRET_KEY: ${SECRET_KEY:?Variable not set}
       FIRST_SUPERUSER: ${FIRST_SUPERUSER:?Variable not set}
       FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:?Variable not set}
+      FIRST_MANAGER: ${FIRST_MANAGER:-manager@example.com}
+      FIRST_MANAGER_PASSWORD: ${FIRST_MANAGER_PASSWORD:-managerpass}
+      FIRST_MEMBER: ${FIRST_MEMBER:-member@example.com}
+      FIRST_MEMBER_PASSWORD: ${FIRST_MEMBER_PASSWORD:-memberpass}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}

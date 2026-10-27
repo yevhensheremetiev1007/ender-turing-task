@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from pwdlib.hashers.bcrypt import BcryptHasher
 from sqlmodel import Session
 
+from app.core.authorization import Role
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.crud import create_user
@@ -89,7 +90,7 @@ def test_reset_password(client: TestClient, db: Session) -> None:
         full_name="Test User",
         password=password,
         is_active=True,
-        is_superuser=False,
+        role=Role.MEMBER,
     )
     user = create_user(session=db, user_create=user_create)
     token = generate_password_reset_token(email=email)

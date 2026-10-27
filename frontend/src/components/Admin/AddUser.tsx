@@ -85,7 +85,11 @@ const AddUser = () => {
   })
 
   const onSubmit = (data: FormData) => {
-    mutation.mutate(data)
+    const { confirm_password: _, is_superuser, ...rest } = data
+    mutation.mutate({
+      ...rest,
+      role: is_superuser ? "admin" : "member",
+    })
   }
 
   return (

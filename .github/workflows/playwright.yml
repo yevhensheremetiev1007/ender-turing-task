@@ -35,7 +35,7 @@ jobs:
           changed:
             - backend/**
             - frontend/**
-            - .env
+            - .env.example
             - compose*.yml
             - .github/workflows/playwright.yml
 
